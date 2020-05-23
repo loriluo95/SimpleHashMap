@@ -14,19 +14,92 @@ public class SimpleHashMap<K, V> {
     private static final int DEFAULT_CAPACITY = 16;
     private static final float DEFAULT_LOADFACTOR = 0.75f;
 
+    private Entry<K, V>[] array;
+    private float loadFactor;
+    private int size;
     public SimpleHashMap() {
         this(DEFAULT_CAPACITY, DEFAULT_LOADFACTOR);
     }
 
-    public SimpleHashMap(int capacity, float loadFactor) {}
+    public SimpleHashMap(int capacity, float loadFactor) {
+        this.array = new Entry[capacity];
+        this.loadFactor = loadFactor;
+        this.size = 0;
+    }
 
-    public void put(K key, V value) {}
+    public void put(K key, V value) {
+        // Resize when size equals the product of capacity and loadFactor
+        if (isFull()) {
+            reHash(array.length * 2);
+        }
+        int index = getIndex(key);
 
-    public boolean containsKey(K key) {}
+        Entry<K, V> curr = array[index];
+        Entry<K, V> newEntry = new Entry<K, V>(key, value);
 
-    public V get(K key) {}
+        while (curr != null) {
+            if (curr.key.equals(key)) {
+                curr.value = value;
+                return;
+            }
+            curr = curr.next;
+        }
+        // Reset to the head
+        curr = array[index];
+        newEntry.next = curr;
+        array[index] = newEntry;
+        size++;
+    }
 
-    public void remove(K key) {}
+    public boolean containsKey(K key) {
+//        doEmptyCheck();
+        int index = getIndex(key);
+        Entry<K, V> curr = array[index];
+        while (curr != null) {
+            if (curr.key.equals(key)) {
+                return true;
+            }
+            curr = curr.next;
+        }
+        return false;
+    }
+
+    public V get(K key) {
+        doEmptyCheck();
+        int index = getIndex(key);
+        Entry<K, V> curr = array[index];
+        while (curr != null) {
+            if (curr.key.equals(key)) {
+                return curr.value;
+            }
+            curr = curr.next;
+        }
+        return null;
+    }
+
+    public void remove(K key) {
+        doEmptyCheck();
+        int index = getIndex(key);
+        Entry<K, V> curr = array[index];
+        Entry<K, V> prev = null;
+        while (curr != null) {
+            if (curr.key.equals(key)) {
+                break;
+            }
+            prev = curr;
+            curr = curr.next;
+        }
+        if (curr == null) return;
+
+        // remove target key
+        if (prev != null) {
+            prev.next = curr.next;
+//            array[index] = prev;
+        } else {
+            array[index] = curr.next;
+        }
+        size--;
+    }
 
     public int size() {
         System.out.println("current size is: " + size);
@@ -37,7 +110,32 @@ public class SimpleHashMap<K, V> {
         return size == 0;
     }
 
-    private int getIndex(K key) {}
+    private int getIndex(K key) {
+        return key.hashCode() % array.length;
+    }
+
+    private void reHash(int newCapacity) {
+        Entry[] temp = array;
+        int tempSize = size;
+        array = new Entry[newCapacity];
+        for (Entry<K, V> entry : temp) {
+            while (entry !=  null) {
+                this.put(entry.key, entry.value);
+                entry = entry.next;
+            }
+        }
+        size = tempSize;
+    }
+
+    private boolean isFull() {
+        return size == array.length * loadFactor;
+    }
+
+    private void doEmptyCheck() {
+        if (isEmpty()) {
+            throw new IllegalArgumentException("No element in this HashMap");
+        }
+    }
 
     public static void main(String[] args) {
         SimpleHashMap<Integer, Integer> map = new SimpleHashMap<>(4, 0.75f);
@@ -52,6 +150,7 @@ public class SimpleHashMap<K, V> {
         System.out.println(map.get(3));
         System.out.println(map.get(4));
         System.out.println(map.get(5));
+        System.out.println(map.get(9));
         map.size();
 
         map.put(1,11);
@@ -84,7 +183,6 @@ public class SimpleHashMap<K, V> {
         map.remove(2);
         System.out.println(map.containsKey(2));
         map.size();
-
     }
 
 }
