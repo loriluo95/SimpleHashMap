@@ -38,6 +38,7 @@ class SimpleHashMapTest {
         hp.put(9, 9);
         assertEquals(1, hp.get(1));
         assertEquals(9, hp.get(9));
+        assertEquals(null, hp.get(3));
     }
 
     @Test
@@ -73,8 +74,10 @@ class SimpleHashMapTest {
         hp.put(9, 9);
         hp.remove(1);
         assertEquals(3, hp.size());
-        assertEquals(false, hp.containsKey(1));
+        assertFalse(hp.containsKey(1));
         assertEquals(9, hp.get(9));
+        hp.remove(9);
+        assertFalse(hp.containsKey(9));
 
     }
 
@@ -92,8 +95,10 @@ class SimpleHashMapTest {
     public void testContainsKey() {
         hp = new SimpleHashMap<>();
         hp.put(1, 1);
+        hp.put(17, 17);
         assertEquals(false, hp.containsKey(0));
         assertEquals(true, hp.containsKey(1));
+        assertEquals(true, hp.containsKey(17));
     }
 
 

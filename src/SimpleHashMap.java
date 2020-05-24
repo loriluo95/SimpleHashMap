@@ -17,6 +17,7 @@ public class SimpleHashMap<K, V> {
     private Entry<K, V>[] array;
     private float loadFactor;
     private int size;
+
     public SimpleHashMap() {
         this(DEFAULT_CAPACITY, DEFAULT_LOADFACTOR);
     }
@@ -28,10 +29,6 @@ public class SimpleHashMap<K, V> {
     }
 
     public void put(K key, V value) {
-        // Resize when size equals the product of capacity and loadFactor
-        if (isFull()) {
-            reHash(array.length * 2);
-        }
         int index = getIndex(key);
 
         Entry<K, V> curr = array[index];
@@ -49,6 +46,10 @@ public class SimpleHashMap<K, V> {
         newEntry.next = curr;
         array[index] = newEntry;
         size++;
+        // Resize when size equals the product of capacity and loadFactor
+        if (isFull()) {
+            reHash(array.length * 2);
+        }
     }
 
     public boolean containsKey(K key) {
@@ -84,21 +85,19 @@ public class SimpleHashMap<K, V> {
         Entry<K, V> prev = null;
         while (curr != null) {
             if (curr.key.equals(key)) {
+                // remove target key
+                if (prev != null) {
+                    prev.next = curr.next;
+                } else {
+                    array[index] = curr.next;
+                }
+                size--;
                 break;
             }
             prev = curr;
             curr = curr.next;
         }
-        if (curr == null) return;
-
-        // remove target key
-        if (prev != null) {
-            prev.next = curr.next;
-//            array[index] = prev;
-        } else {
-            array[index] = curr.next;
-        }
-        size--;
+//        if (curr == null) return;
     }
 
     public int size() {
@@ -111,12 +110,13 @@ public class SimpleHashMap<K, V> {
     }
 
     private int getIndex(K key) {
-        return key.hashCode() % array.length;
+        return key.hashCode() & Integer.MAX_VALUE % array.length;
     }
 
     private void reHash(int newCapacity) {
         Entry[] temp = array;
-        int tempSize = size;
+//        int tempSize = size;
+        size = 0;
         array = new Entry[newCapacity];
         for (Entry<K, V> entry : temp) {
             while (entry !=  null) {
@@ -124,7 +124,7 @@ public class SimpleHashMap<K, V> {
                 entry = entry.next;
             }
         }
-        size = tempSize;
+//        size = tempSize;
     }
 
     private boolean isFull() {
@@ -137,52 +137,51 @@ public class SimpleHashMap<K, V> {
         }
     }
 
-    public static void main(String[] args) {
-        SimpleHashMap<Integer, Integer> map = new SimpleHashMap<>(4, 0.75f);
-        map.put(1,1);
-        map.put(2,2);
-        map.put(3,3);
-        map.put(4,4);
-        map.put(5,5);
-        map.put(9,9);
-        System.out.println(map.get(1));
-        System.out.println(map.get(2));
-        System.out.println(map.get(3));
-        System.out.println(map.get(4));
-        System.out.println(map.get(5));
-        System.out.println(map.get(9));
-        map.size();
-
-        map.put(1,11);
-        map.put(2,12);
-        map.put(3,13);
-        map.put(4,14);
-        map.put(5,15);
-        System.out.println(map.get(1));
-        System.out.println(map.get(2));
-        System.out.println(map.get(3));
-        System.out.println(map.get(4));
-        System.out.println(map.get(5));
-        map.size();
-
-        map.remove(1);
-        System.out.println(map.containsKey(1));
-        System.out.println(map.get(5));
-        System.out.println(map.get(9));
-        map.size();
-
-        map.remove(5);
-        System.out.println(map.containsKey(5));
-        System.out.println(map.get(9));
-        map.size();
-
-        map.remove(9);
-        System.out.println(map.containsKey(9));
-        map.size();
-
-        map.remove(2);
-        System.out.println(map.containsKey(2));
-        map.size();
-    }
-
+//    public static void main(String[] args) {
+//        SimpleHashMap<Integer, Integer> map = new SimpleHashMap<>(4, 0.75f);
+//        map.put(1,1);
+//        map.put(2,2);
+//        map.put(3,3);
+//        map.put(4,4);
+//        map.put(5,5);
+//        map.put(9,9);
+//        System.out.println(map.get(1));
+//        System.out.println(map.get(2));
+//        System.out.println(map.get(3));
+//        System.out.println(map.get(4));
+//        System.out.println(map.get(5));
+//        System.out.println(map.get(9));
+//        map.size();
+//
+//        map.put(1,11);
+//        map.put(2,12);
+//        map.put(3,13);
+//        map.put(4,14);
+//        map.put(5,15);
+//        System.out.println(map.get(1));
+//        System.out.println(map.get(2));
+//        System.out.println(map.get(3));
+//        System.out.println(map.get(4));
+//        System.out.println(map.get(5));
+//        map.size();
+//
+//        map.remove(1);
+//        System.out.println(map.containsKey(1));
+//        System.out.println(map.get(5));
+//        System.out.println(map.get(9));
+//        map.size();
+//
+//        map.remove(5);
+//        System.out.println(map.containsKey(5));
+//        System.out.println(map.get(9));
+//        map.size();
+//
+//        map.remove(9);
+//        System.out.println(map.containsKey(9));
+//        map.size();
+//
+//        map.remove(2);
+//        System.out.println(map.containsKey(2));
+//        map.size();
+//    }
 }
